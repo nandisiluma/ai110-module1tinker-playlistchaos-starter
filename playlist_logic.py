@@ -10,7 +10,9 @@ DEFAULT_PROFILE = {
     "favorite_genre": "rock",
     "include_mixed": True,
 }
-
+# Move these to module-level constants for clarity
+HYPE_KEYWORDS = ["rock", "punk", "party"]
+CHILL_KEYWORDS = ["lofi", "ambient", "sleep"]
 
 def normalize_title(title: str) -> str:
     """Normalize a song title for comparisons."""
@@ -56,6 +58,12 @@ def normalize_song(raw: Song) -> Song:
         "tags": tags,
     }
 
+def _contains_keyword(value: str, keywords: List[str]) -> bool:
+    """Return True if any keyword is a substring of value."""
+    if not isinstance(value, str):
+        return False
+    v = value.lower()
+    return any(k in v for k in keywords)
 
 def classify_song(song: Song, profile: Dict[str, object]) -> str:
     """Return a mood label given a song and user profile."""
@@ -67,11 +75,11 @@ def classify_song(song: Song, profile: Dict[str, object]) -> str:
     chill_max_energy = profile.get("chill_max_energy", 3)
     favorite_genre = profile.get("favorite_genre", "")
 
-    hype_keywords = ["rock", "punk", "party"]
-    chill_keywords = ["lofi", "ambient", "sleep"]
+    # hype_keywords = ["rock", "punk", "party"]
+    # chill_keywords = ["lofi", "ambient", "sleep"]
 
-    is_hype_keyword = any(k in genre for k in hype_keywords)
-    is_chill_keyword = any(k in title for k in chill_keywords)
+    is_hype_keyword = _contains_keyword(genre, HYPE_KEYWORDS)
+    is_chill_keyword = _contains_keyword(title, CHILL_KEYWORDS)
 
     if genre == favorite_genre or energy >= hype_min_energy or is_hype_keyword:
         return "Hype"
